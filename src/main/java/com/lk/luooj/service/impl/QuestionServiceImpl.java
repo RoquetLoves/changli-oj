@@ -114,7 +114,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
 
     /**
-     * 获得问题的包装类
+     * 获得题目的包装类
      * @param question
      * @param request
      * @return
@@ -122,7 +122,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     @Override
     public QuestionVO getQuestionVO(Question question, HttpServletRequest request) {
         QuestionVO questionVO = QuestionVO.objToVo(question);
-        long questionId = question.getId();
         // 1. 关联查询用户信息
         Long userId = question.getUserId();
         User user = null;
@@ -135,7 +134,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     }
 
     /**
-     * 获取问题分页的包装类
+     * 获取题目分页的包装类
      * @param questionPage
      * @param request
      * @return

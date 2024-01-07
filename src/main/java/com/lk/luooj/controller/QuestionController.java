@@ -1,6 +1,7 @@
 package com.lk.luooj.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lk.luooj.annotation.AuthCheck;
 import com.lk.luooj.common.BaseResponse;
@@ -10,10 +11,9 @@ import com.lk.luooj.common.ResultUtils;
 import com.lk.luooj.constant.UserConstant;
 import com.lk.luooj.exception.BusinessException;
 import com.lk.luooj.exception.ThrowUtils;
-import com.lk.luooj.model.dto.question.QuestionAddRequest;
-import com.lk.luooj.model.dto.question.QuestionEditRequest;
-import com.lk.luooj.model.dto.question.QuestionQueryRequest;
-import com.lk.luooj.model.dto.question.QuestionUpdateRequest;
+import com.lk.luooj.model.dto.post.PostUpdateRequest;
+import com.lk.luooj.model.dto.question.*;
+import com.lk.luooj.model.entity.Post;
 import com.lk.luooj.model.entity.Question;
 import com.lk.luooj.model.entity.User;
 import com.lk.luooj.model.vo.QuestionVO;
@@ -61,6 +61,14 @@ public class QuestionController {
         List<String> tags = questionAddRequest.getTags();
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
+        }
+        JudgeConfig judgeConfig = questionAddRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
+        }
+        List<JudgeCase> judgeCase = questionAddRequest.getJudgeCase();
+        if (judgeCase != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
         }
         questionService.validQuestion(question, true);
         User loginUser = userService.getLoginUser(request);
@@ -114,6 +122,14 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
+        JudgeConfig judgeConfig = questionUpdateRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
+        }
+        List<JudgeCase> judgeCase = questionUpdateRequest.getJudgeCase();
+        if (judgeCase != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
+        }
         // 参数校验
         questionService.validQuestion(question, false);
         long id = questionUpdateRequest.getId();
@@ -122,6 +138,23 @@ public class QuestionController {
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
         boolean result = questionService.updateById(question);
         return ResultUtils.success(result);
+    }
+
+
+    /**
+     * 分页获取题目列表（仅限管理员使用）
+     * @param questionQueryRequest
+     * @return
+     */
+    @PostMapping("/list/page")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<Question>> adminQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
+
+        long current = questionQueryRequest.getCurrent();
+        long pageSize = questionQueryRequest.getPageSize();
+        QueryWrapper<Question> queryWrapper = questionService.getQueryWrapper(questionQueryRequest);
+        Page<Question> questionPage = questionService.page(new Page<>(current, pageSize), queryWrapper);
+        return ResultUtils.success(questionPage);
     }
 
     /**
@@ -205,6 +238,14 @@ public class QuestionController {
         List<String> tags = questionEditRequest.getTags();
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
+        }
+        JudgeConfig judgeConfig = questionEditRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
+        }
+        List<JudgeCase> judgeCase = questionEditRequest.getJudgeCase();
+        if (judgeCase != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
         }
         // 参数校验
         questionService.validQuestion(question, false);
